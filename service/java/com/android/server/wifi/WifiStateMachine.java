@@ -665,8 +665,6 @@ public class WifiStateMachine extends StateMachine {
 
     static final int CMD_GET_SIM_INFO                    = BASE + 150;
 
-    static final int CMD_GET_SIM_INFO                    = BASE + 149;
-
     /* Wifi state machine modes of operation */
     /* CONNECT_MODE - connect to any 'known' AP when it becomes available */
     public static final int CONNECT_MODE                   = 1;
