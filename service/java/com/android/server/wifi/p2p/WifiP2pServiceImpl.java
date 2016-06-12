@@ -52,7 +52,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.INetworkManagementService;
+//import android.os.INetworkManagementService;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
@@ -109,7 +109,7 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
     private String mInterface;
     private Notification mNotification;
 
-    INetworkManagementService mNwService;
+//    INetworkManagementService mNwService;
     private DhcpStateMachine mDhcpStateMachine;
 
     private P2pStateMachine mP2pStateMachine;
@@ -381,8 +381,8 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
     }
 
     public void connectivityServiceReady() {
-        IBinder b = ServiceManager.getService(Context.NETWORKMANAGEMENT_SERVICE);
-        mNwService = INetworkManagementService.Stub.asInterface(b);
+//        IBinder b = ServiceManager.getService(Context.NETWORKMANAGEMENT_SERVICE);
+//        mNwService = INetworkManagementService.Stub.asInterface(b);
     }
 
     private void enforceAccessPermission() {
@@ -910,6 +910,7 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
             if (DBG) logd(getName() + message.toString());
             switch (message.what) {
                 case WifiStateMachine.CMD_ENABLE_P2P:
+/*
                     try {
                         mNwService.setInterfaceUp(mInterface);
                     } catch (RemoteException re) {
@@ -917,6 +918,7 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
                     } catch (IllegalStateException ie) {
                         loge("Unable to change interface settings: " + ie);
                     }
+*/
                     mWifiMonitor.startMonitoring();
                     transitionTo(mP2pEnablingState);
                     break;
@@ -1988,6 +1990,7 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
                         sendP2pConnectionChangedBroadcast();
                         //Turn on power save on client
                         mWifiNative.setP2pPowerSave(mGroup.getInterface(), true);
+/*
                         try {
                             String iface = mGroup.getInterface();
                             mNwService.addInterfaceToLocalNetwork(iface,
@@ -1997,6 +2000,7 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
                         } catch (IllegalStateException ie) {
                             loge("Failed to add iface to local network " + ie);
                         }
+*/
                     } else {
                         loge("DHCP failed");
                         mWifiNative.p2pGroupRemove(mGroup.getInterface());
@@ -2297,31 +2301,32 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
 
     private void startDhcpServer(String intf) {
         InterfaceConfiguration ifcg = null;
-        try {
-            ifcg = mNwService.getInterfaceConfig(intf);
-            ifcg.setLinkAddress(new LinkAddress(NetworkUtils.numericToInetAddress(
-                        SERVER_ADDRESS), 24));
-            ifcg.setInterfaceUp();
-            mNwService.setInterfaceConfig(intf, ifcg);
-            /* This starts the dnsmasq server */
-            ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(
-                    Context.CONNECTIVITY_SERVICE);
-            String[] tetheringDhcpRanges = cm.getTetheredDhcpRanges();
-            if (mNwService.isTetheringStarted()) {
-                if (DBG) logd("Stop existing tethering and restart it");
-                mNwService.stopTethering();
-            }
-            mNwService.tetherInterface(intf);
-            mNwService.startTethering(tetheringDhcpRanges);
-        } catch (Exception e) {
-            loge("Error configuring interface " + intf + ", :" + e);
-            return;
-        }
+//        try {
+//            ifcg = mNwService.getInterfaceConfig(intf);
+//            ifcg.setLinkAddress(new LinkAddress(NetworkUtils.numericToInetAddress(
+//                        SERVER_ADDRESS), 24));
+//            ifcg.setInterfaceUp();
+//            mNwService.setInterfaceConfig(intf, ifcg);
+//            /* This starts the dnsmasq server */
+//            ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(
+//                    Context.CONNECTIVITY_SERVICE);
+//            String[] tetheringDhcpRanges = cm.getTetheredDhcpRanges();
+//            if (mNwService.isTetheringStarted()) {
+//                if (DBG) logd("Stop existing tethering and restart it");
+//                mNwService.stopTethering();
+//            }
+//            mNwService.tetherInterface(intf);
+//            mNwService.startTethering(tetheringDhcpRanges);
+//        } catch (Exception e) {
+//            loge("Error configuring interface " + intf + ", :" + e);
+//            return;
+//        }
 
         logd("Started Dhcp server on " + intf);
    }
 
     private void stopDhcpServer(String intf) {
+/*
         try {
             mNwService.untetherInterface(intf);
             for (String temp : mNwService.listTetheredInterfaces()) {
@@ -2338,6 +2343,7 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
         } finally {
             logd("Stopped Dhcp server");
         }
+*/
     }
 
     private void notifyP2pEnableFailure() {
@@ -2901,6 +2907,7 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
             mDhcpStateMachine.sendMessage(DhcpStateMachine.CMD_STOP_DHCP);
             mDhcpStateMachine.doQuit();
             mDhcpStateMachine = null;
+/*
             try {
                 mNwService.removeInterfaceFromLocalNetwork(mGroup.getInterface());
             } catch (RemoteException e) {
@@ -2908,13 +2915,16 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
             } catch (IllegalStateException ie) {
                 loge("Failed to remove iface from local network " + ie);
             }
+*/
         }
 
+/*
         try {
             mNwService.clearInterfaceAddresses(mGroup.getInterface());
         } catch (Exception e) {
             loge("Failed to clear addresses " + e);
         }
+*/
         NetworkUtils.resetConnections(mGroup.getInterface(), NetworkUtils.RESET_ALL_ADDRESSES);
 
         // Clear any timeout that was set. This is essential for devices

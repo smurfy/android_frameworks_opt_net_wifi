@@ -80,7 +80,7 @@ import android.net.wifi.p2p.IWifiP2pManager;
 import android.os.BatteryStats;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.INetworkManagementService;
+//import android.os.INetworkManagementService;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
@@ -189,7 +189,7 @@ public class WifiStateMachine extends StateMachine {
     private WifiNative mWifiNative;
     private WifiConfigStore mWifiConfigStore;
     private WifiAutoJoinController mWifiAutoJoinController;
-    private INetworkManagementService mNwService;
+//    private INetworkManagementService mNwService;
     private ConnectivityManager mCm;
 
     private final boolean mP2pSupported;
@@ -916,8 +916,8 @@ public class WifiStateMachine extends StateMachine {
         mBatteryStats = IBatteryStats.Stub.asInterface(ServiceManager.getService(
                 BatteryStats.SERVICE_NAME));
 
-        IBinder b = ServiceManager.getService(Context.NETWORKMANAGEMENT_SERVICE);
-        mNwService = INetworkManagementService.Stub.asInterface(b);
+//      IBinder b = ServiceManager.getService(Context.NETWORKMANAGEMENT_SERVICE);
+//      mNwService = INetworkManagementService.Stub.asInterface(b);
 
         mP2pSupported = mContext.getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_WIFI_DIRECT);
@@ -945,11 +945,13 @@ public class WifiStateMachine extends StateMachine {
                 sendMessage(CMD_UPDATE_LINKPROPERTIES, lp);
             }
         });
+/*
         try {
             mNwService.registerObserver(mNetlinkTracker);
         } catch (RemoteException e) {
             loge("Couldn't register netlink tracker: " + e.toString());
         }
+*/
 
         mAlarmManager = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
         mScanIntent = getPrivateBroadcast(ACTION_START_SCAN, SCAN_REQUEST);
@@ -3229,27 +3231,28 @@ public class WifiStateMachine extends StateMachine {
                 if (intf.matches(regex)) {
 
                     InterfaceConfiguration ifcg = null;
-                    try {
-                        ifcg = mNwService.getInterfaceConfig(intf);
-                        if (ifcg != null) {
-                            /* IP/netmask: 192.168.43.1/255.255.255.0 */
-                            ifcg.setLinkAddress(new LinkAddress(
-                                    NetworkUtils.numericToInetAddress("192.168.43.1"), 24));
-                            ifcg.setInterfaceUp();
-
-                            mNwService.setInterfaceConfig(intf, ifcg);
-                        }
-                    } catch (Exception e) {
-                        loge("Error configuring interface " + intf + ", :" + e);
-                        return false;
-                    }
-
-                    if(mCm.tether(intf) != ConnectivityManager.TETHER_ERROR_NO_ERROR) {
-                        loge("Error tethering on " + intf);
-                        return false;
-                    }
-                    mTetherInterfaceName = intf;
-                    return true;
+//                    try {
+//                        ifcg = mNwService.getInterfaceConfig(intf);
+//                        if (ifcg != null) {
+//                            /* IP/netmask: 192.168.43.1/255.255.255.0 */
+//                            ifcg.setLinkAddress(new LinkAddress(
+//                                    NetworkUtils.numericToInetAddress("192.168.43.1"), 24));
+//                            ifcg.setInterfaceUp();
+//
+//                            mNwService.setInterfaceConfig(intf, ifcg);
+//                        }
+//                    } catch (Exception e) {
+//                        loge("Error configuring interface " + intf + ", :" + e);
+//                        return false;
+//                    }
+//
+//                    if(mCm.tether(intf) != ConnectivityManager.TETHER_ERROR_NO_ERROR) {
+//                        loge("Error tethering on " + intf);
+//                        return false;
+//                    }
+//                    mTetherInterfaceName = intf;
+//                    return true;
+                    return false;
                 }
             }
         }
@@ -3264,6 +3267,7 @@ public class WifiStateMachine extends StateMachine {
         /* Clear the interface config to allow dhcp correctly configure new
            ip settings */
         InterfaceConfiguration ifcg = null;
+/*
         try {
             ifcg = mNwService.getInterfaceConfig(mTetherInterfaceName);
             if (ifcg != null) {
@@ -3278,6 +3282,7 @@ public class WifiStateMachine extends StateMachine {
         if (mCm.untether(mTetherInterfaceName) != ConnectivityManager.TETHER_ERROR_NO_ERROR) {
             loge("Untether initiate failed!");
         }
+*/
     }
 
     private boolean isWifiTethered(ArrayList<String> active) {
@@ -4075,6 +4080,7 @@ public class WifiStateMachine extends StateMachine {
     }
 
     private boolean clearIPv4Address(String iface) {
+/*
         try {
             InterfaceConfiguration ifcg = new InterfaceConfiguration();
             ifcg.setLinkAddress(new LinkAddress("0.0.0.0/0"));
@@ -4083,6 +4089,8 @@ public class WifiStateMachine extends StateMachine {
         } catch (RemoteException e) {
             return false;
         }
+*/
+        return false;
     }
 
     private boolean isProvisioned(LinkProperties lp) {
@@ -4461,13 +4469,14 @@ public class WifiStateMachine extends StateMachine {
         clearCurrentConfigBSSID("handleNetworkDisconnect");
 
         stopDhcp();
-
+/*
         try {
             mNwService.clearInterfaceAddresses(mInterfaceName);
             mNwService.disableIpv6(mInterfaceName);
         } catch (Exception e) {
             loge("Failed to clear addresses or disable ipv6" + e);
         }
+*/
 
         /* Reset data structures */
         mBadLinkspeedcount = 0;
@@ -4683,6 +4692,7 @@ public class WifiStateMachine extends StateMachine {
      * on a running daemon
      */
     private void startSoftApWithConfig(final WifiConfiguration config) {
+/*
         // Start hostapd on a separate thread
         new Thread(new Runnable() {
             public void run() {
@@ -4703,6 +4713,7 @@ public class WifiStateMachine extends StateMachine {
                 sendMessage(CMD_START_AP_SUCCESS);
             }
         }).start();
+*/
     }
 
     /*
@@ -5099,6 +5110,7 @@ public class WifiStateMachine extends StateMachine {
             switch (message.what) {
                 case CMD_START_SUPPLICANT:
                     if (mWifiNative.loadDriver()) {
+/*
                         try {
                             mNwService.wifiFirmwareReload(mInterfaceName, "STA");
                         } catch (Exception e) {
@@ -5128,7 +5140,7 @@ public class WifiStateMachine extends StateMachine {
                         } catch (IllegalStateException ie) {
                             loge("Unable to change interface settings: " + ie);
                         }
-
+*/
                        /* Stop a running supplicant after a runtime restart
                         * Avoids issues with drivers that do not handle interface down
                         * on a running supplicant properly.
@@ -7505,6 +7517,7 @@ public class WifiStateMachine extends StateMachine {
             // cause the roam to faile and the device to disconnect
             clearCurrentConfigBSSID("ObtainingIpAddress");
 
+/*
             try {
                 mNwService.enableIpv6(mInterfaceName);
             } catch (RemoteException re) {
@@ -7512,6 +7525,7 @@ public class WifiStateMachine extends StateMachine {
             } catch (IllegalStateException e) {
                 loge("Failed to enable IPv6: " + e);
             }
+*/
 
             if (!mWifiConfigStore.isUsingStaticIp(mLastNetworkId)) {
                 if (isRoaming()) {
@@ -7541,6 +7555,7 @@ public class WifiStateMachine extends StateMachine {
                     InterfaceConfiguration ifcg = new InterfaceConfiguration();
                     ifcg.setLinkAddress(config.ipAddress);
                     ifcg.setInterfaceUp();
+/*
                     try {
                         mNwService.setInterfaceConfig(mInterfaceName, ifcg);
                         if (DBG) log("Static IP configuration succeeded");
@@ -7553,6 +7568,7 @@ public class WifiStateMachine extends StateMachine {
                         loge("Static IP configuration failed: " + e);
                         sendMessage(CMD_STATIC_IP_FAILURE);
                     }
+*/
                 }
             }
         }
@@ -8505,11 +8521,13 @@ public class WifiStateMachine extends StateMachine {
                 case CMD_STOP_AP:
                     if (DBG) log("Stopping Soft AP");
                     /* We have not tethered at this point, so we just shutdown soft Ap */
+/*
                     try {
                         mNwService.stopAccessPoint(mInterfaceName);
                     } catch(Exception e) {
                         loge("Exception in stopAccessPoint()");
                     }
+*/
                     setWifiApState(WIFI_AP_STATE_DISABLED);
                     transitionTo(mInitialState);
                     break;
