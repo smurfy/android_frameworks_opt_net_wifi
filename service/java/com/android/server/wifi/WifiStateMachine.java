@@ -3377,9 +3377,12 @@ public class WifiStateMachine extends StateMachine {
 
         final Intent intent = new Intent(WifiManager.WIFI_STATE_CHANGED_ACTION);
         intent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY_BEFORE_BOOT);
-        intent.putExtra(WifiManager.EXTRA_WIFI_STATE, wifiState);
+        intent.putExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_ENABLED);
         intent.putExtra(WifiManager.EXTRA_PREVIOUS_WIFI_STATE, previousWifiState);
         mContext.sendStickyBroadcastAsUser(intent, UserHandle.ALL);
+
+        // sfdroid
+        sendNetworkStateChangeBroadcast(null);
     }
 
     private void setWifiApState(int wifiApState) {
@@ -4339,6 +4342,10 @@ public class WifiStateMachine extends StateMachine {
     }
 
     private void sendNetworkStateChangeBroadcast(String bssid) {
+        checkAndSetConnectivityInstance();
+        mNetworkInfo = mCm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        mWifiInfo = new WifiInfo(WifiManager.fake_wifi_info);
+
         Intent intent = new Intent(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         intent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY_BEFORE_BOOT);
         intent.putExtra(WifiManager.EXTRA_NETWORK_INFO, new NetworkInfo(mNetworkInfo));
@@ -5470,8 +5477,9 @@ public class WifiStateMachine extends StateMachine {
 
                             ++mTries;
                             /* Send ourselves a delayed message to start driver again */
-                            sendMessageDelayed(obtainMessage(CMD_DRIVER_START_TIMED_OUT,
-                                        ++mDriverStartToken, 0), DRIVER_START_TIME_OUT_MSECS);
+                            // sfdroid
+                            //sendMessageDelayed(obtainMessage(CMD_DRIVER_START_TIMED_OUT,
+                            //            ++mDriverStartToken, 0), DRIVER_START_TIME_OUT_MSECS);
                         }
                     }
                     break;
