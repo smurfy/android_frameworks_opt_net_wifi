@@ -442,11 +442,11 @@ public class WifiNative {
     }
 
     public boolean startDriver() {
-        return doBooleanCommand("DRIVER START");
+        return true;//return doBooleanCommand("DRIVER START");
     }
 
     public boolean stopDriver() {
-        return doBooleanCommand("DRIVER STOP");
+        return true;//return doBooleanCommand("DRIVER STOP");
     }
 
 

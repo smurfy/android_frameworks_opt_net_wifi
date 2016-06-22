@@ -295,9 +295,9 @@ public final class WifiServiceImpl extends IWifiManager.Stub {
 
     WifiStateMachineHandler mWifiStateMachineHandler;
 
-    private WifiWatchdogStateMachine mWifiWatchdogStateMachine;
+//    private WifiWatchdogStateMachine mWifiWatchdogStateMachine;
 
-    private WifiController mWifiController;
+//    private WifiController mWifiController;
 
     public WifiServiceImpl(Context context) {
         mContext = context;
@@ -317,7 +317,7 @@ public final class WifiServiceImpl extends IWifiManager.Stub {
         wifiThread.start();
         mClientHandler = new ClientHandler(wifiThread.getLooper());
         mWifiStateMachineHandler = new WifiStateMachineHandler(wifiThread.getLooper());
-        mWifiController = new WifiController(mContext, this, wifiThread.getLooper());
+//        mWifiController = new WifiController(mContext, this, wifiThread.getLooper());
 
         mBatchedScanSupported = mContext.getResources().getBoolean(
                 R.bool.config_wifi_batched_scan_supported);
@@ -342,7 +342,7 @@ public final class WifiServiceImpl extends IWifiManager.Stub {
                     @Override
                     public void onReceive(Context context, Intent intent) {
                         if (mSettingsStore.handleAirplaneModeToggled()) {
-                            mWifiController.sendMessage(CMD_AIRPLANE_TOGGLED);
+                            //mWifiController.sendMessage(CMD_AIRPLANE_TOGGLED);
                         }
                     }
                 },
@@ -353,16 +353,17 @@ public final class WifiServiceImpl extends IWifiManager.Stub {
         // without active user involvement. Always receive broadcasts.
         registerForBroadcasts();
 
-        mWifiController.start();
+        //mWifiController.start();
 
         mIsControllerStarted = true;
 
         // If we are already disabled (could be due to airplane mode), avoid changing persist
         // state here
-        if (wifiEnabled) setWifiEnabled(wifiEnabled);
+        setWifiEnabled(true);
+//        if (wifiEnabled) setWifiEnabled(wifiEnabled);
 
-        mWifiWatchdogStateMachine = WifiWatchdogStateMachine.
-               makeWifiWatchdogStateMachine(mContext, mWifiStateMachine.getMessenger());
+//        mWifiWatchdogStateMachine = WifiWatchdogStateMachine.
+//               makeWifiWatchdogStateMachine(mContext, mWifiStateMachine.getMessenger());
     }
 
     /**
@@ -702,7 +703,7 @@ public final class WifiServiceImpl extends IWifiManager.Stub {
             return false;
         }
 
-        mWifiController.sendMessage(CMD_WIFI_TOGGLED);
+        //mWifiController.sendMessage(CMD_WIFI_TOGGLED);
         return true;
     }
 
@@ -734,7 +735,7 @@ public final class WifiServiceImpl extends IWifiManager.Stub {
         }
         // null wifiConfig is a meaningful input for CMD_SET_AP
         if (wifiConfig == null || wifiConfig.isValid()) {
-            mWifiController.obtainMessage(CMD_SET_AP, enabled ? 1 : 0, 0, wifiConfig).sendToTarget();
+            //mWifiController.obtainMessage(CMD_SET_AP, enabled ? 1 : 0, 0, wifiConfig).sendToTarget();
         } else {
             Slog.e(TAG, "Invalid WifiConfiguration");
         }
@@ -1360,21 +1361,21 @@ public final class WifiServiceImpl extends IWifiManager.Stub {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action.equals(Intent.ACTION_SCREEN_ON)) {
-                mWifiController.sendMessage(CMD_SCREEN_ON);
+                //mWifiController.sendMessage(CMD_SCREEN_ON);
             } else if (action.equals(Intent.ACTION_USER_PRESENT)) {
-                mWifiController.sendMessage(CMD_USER_PRESENT);
+                //mWifiController.sendMessage(CMD_USER_PRESENT);
             } else if (action.equals(Intent.ACTION_SCREEN_OFF)) {
-                mWifiController.sendMessage(CMD_SCREEN_OFF);
+                //mWifiController.sendMessage(CMD_SCREEN_OFF);
             } else if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
                 int pluggedType = intent.getIntExtra("plugged", 0);
-                mWifiController.sendMessage(CMD_BATTERY_CHANGED, pluggedType, 0, null);
+                //mWifiController.sendMessage(CMD_BATTERY_CHANGED, pluggedType, 0, null);
             } else if (action.equals(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)) {
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_CONNECTION_STATE,
                         BluetoothAdapter.STATE_DISCONNECTED);
-                mWifiStateMachine.sendBluetoothAdapterStateChange(state);
+                //mWifiStateMachine.sendBluetoothAdapterStateChange(state);
             } else if (action.equals(TelephonyIntents.ACTION_EMERGENCY_CALLBACK_MODE_CHANGED)) {
                 boolean emergencyMode = intent.getBooleanExtra("phoneinECMState", false);
-                mWifiController.sendMessage(CMD_EMERGENCY_MODE_CHANGED, emergencyMode ? 1 : 0, 0);
+                //mWifiController.sendMessage(CMD_EMERGENCY_MODE_CHANGED, emergencyMode ? 1 : 0, 0);
             } else if (action.equals(WifiManager.WIFI_AP_STATE_CHANGED_ACTION)) {
                 int wifiApState = intent.getIntExtra(WifiManager.EXTRA_WIFI_AP_STATE,
                         WifiManager.WIFI_AP_STATE_FAILED);
@@ -1403,7 +1404,7 @@ public final class WifiServiceImpl extends IWifiManager.Stub {
             @Override
             public void onChange(boolean selfChange) {
                 mSettingsStore.handleWifiScanAlwaysAvailableToggled();
-                mWifiController.sendMessage(CMD_SCAN_ALWAYS_MODE_CHANGED);
+                //mWifiController.sendMessage(CMD_SCAN_ALWAYS_MODE_CHANGED);
             }
         };
 
@@ -1440,7 +1441,7 @@ public final class WifiServiceImpl extends IWifiManager.Stub {
                                        Settings.Global.STAY_ON_WHILE_PLUGGED_IN, 0));
         pw.println("mMulticastEnabled " + mMulticastEnabled);
         pw.println("mMulticastDisabled " + mMulticastDisabled);
-        mWifiController.dump(fd, pw, args);
+        //mWifiController.dump(fd, pw, args);
         mSettingsStore.dump(fd, pw, args);
         mNotificationController.dump(fd, pw, args);
         mTrafficPoller.dump(fd, pw, args);
@@ -1481,7 +1482,7 @@ public final class WifiServiceImpl extends IWifiManager.Stub {
         pw.println("Locks held:");
         mLocks.dump(pw);
 
-        mWifiWatchdogStateMachine.dump(fd, pw, args);
+//        mWifiWatchdogStateMachine.dump(fd, pw, args);
         pw.println();
         mWifiStateMachine.dump(fd, pw, args);
         pw.println();
@@ -1642,7 +1643,7 @@ public final class WifiServiceImpl extends IWifiManager.Stub {
                 ++mScanLocksAcquired;
                 break;
             }
-            mWifiController.sendMessage(CMD_LOCKS_CHANGED);
+            //mWifiController.sendMessage(CMD_LOCKS_CHANGED);
             return true;
         } catch (RemoteException e) {
             return false;
@@ -1709,7 +1710,7 @@ public final class WifiServiceImpl extends IWifiManager.Stub {
                         ++mScanLocksReleased;
                         break;
                 }
-                mWifiController.sendMessage(CMD_LOCKS_CHANGED);
+                //mWifiController.sendMessage(CMD_LOCKS_CHANGED);
             }
         } catch (RemoteException e) {
         } finally {
@@ -1892,5 +1893,10 @@ public final class WifiServiceImpl extends IWifiManager.Stub {
             Slog.e(TAG, "mWifiStateMachineChannel is not initialized");
             return null;
         }
+    }
+
+    public void update_wifiinfo()
+    {
+        mWifiStateMachine.update_wifiinfo();
     }
 }

@@ -46,6 +46,7 @@ extern pthread_mutex_t *g_pItemListMutex;
 extern String8 *g_pCurrentSSID;
 static bool doCommand(JNIEnv* env, jstring javaCommand,
                       char* reply, size_t reply_len) {
+#if 0
     ScopedUtfChars command(env, javaCommand);
     if (command.c_str() == NULL) {
         return false; // ScopedUtfChars already threw on error.
@@ -70,6 +71,7 @@ static bool doCommand(JNIEnv* env, jstring javaCommand,
     } else {
         reply[reply_len] = '\0';
     }
+#endif
     return true;
 }
 
@@ -115,11 +117,15 @@ static jstring doStringCommand(JNIEnv* env, jstring javaCommand) {
 
 static jboolean android_net_wifi_isDriverLoaded(JNIEnv* env, jobject)
 {
+#if 0
     return (::is_wifi_driver_loaded() == 1);
+#endif
+    return true;
 }
 
 static jboolean android_net_wifi_loadDriver(JNIEnv* env, jobject)
 {
+#if 0
     g_pItemListMutex = new pthread_mutex_t;
     if (NULL == g_pItemListMutex) {
         ALOGE("Failed to allocate memory for g_pItemListMutex!");
@@ -127,10 +133,13 @@ static jboolean android_net_wifi_loadDriver(JNIEnv* env, jobject)
     }
     pthread_mutex_init(g_pItemListMutex, NULL);
     return (::wifi_load_driver() == 0);
+#endif
+    return true;
 }
 
 static jboolean android_net_wifi_unloadDriver(JNIEnv* env, jobject)
 {
+#if 0
     if (g_pItemListMutex != NULL) {
         pthread_mutex_lock(g_pItemListMutex);
         struct accessPointObjectItem *pCurrentNode = g_pItemList;
@@ -156,26 +165,39 @@ static jboolean android_net_wifi_unloadDriver(JNIEnv* env, jobject)
         g_pItemListMutex = NULL;
     }
     return (::wifi_unload_driver() == 0);
+#endif
+    return true;
 }
 
 static jboolean android_net_wifi_startSupplicant(JNIEnv* env, jobject, jboolean p2pSupported)
 {
+#if 0
     return (::wifi_start_supplicant(p2pSupported) == 0);
+#endif
+    return true;
 }
 
 static jboolean android_net_wifi_killSupplicant(JNIEnv* env, jobject, jboolean p2pSupported)
 {
+#if 0
     return (::wifi_stop_supplicant(p2pSupported) == 0);
+#endif
+    return true;
 }
 
 static jboolean android_net_wifi_connectToSupplicant(JNIEnv* env, jobject)
 {
+#if 0
     return (::wifi_connect_to_supplicant() == 0);
+#endif
+    return true;
 }
 
 static void android_net_wifi_closeSupplicantConnection(JNIEnv* env, jobject)
 {
+#if 0
     ::wifi_close_supplicant_connection();
+#endif
 }
 
 static jstring android_net_wifi_waitForEvent(JNIEnv* env, jobject)
@@ -336,6 +358,7 @@ static int android_net_wifi_getInterfaces(JNIEnv *env, jclass cls) {
 }
 
 static jstring android_net_wifi_getInterfaceName(JNIEnv *env, jclass cls, jint i) {
+#if 0
     char buf[EVENT_BUF_SIZE];
 
     jlong value = getStaticLongArrayField(env, cls, WifiIfaceHandleVarName, i);
@@ -346,6 +369,8 @@ static jstring android_net_wifi_getInterfaceName(JNIEnv *env, jclass cls, jint i
     } else {
         return env->NewStringUTF(buf);
     }
+#endif
+    return NULL;
 }
 
 
